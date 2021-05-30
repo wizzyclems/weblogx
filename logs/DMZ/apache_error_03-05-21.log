@@ -1,0 +1,9 @@
+[Mon May 03 01:50:40.483373 2021] [proxy:error] [pid 1132:tid 21248] (OS 10061)No connection could be made because the target machine actively refused it.  : AH00957: HTTP: attempt to connect to 10.1.242.213:7112 (10.1.242.213) failed
+[Mon May 03 01:50:40.491373 2021] [proxy:error] [pid 1132:tid 21248] AH00959: ap_proxy_connect_backend disabling worker for (10.1.242.213) for 60s
+[Mon May 03 01:50:40.491373 2021] [proxy_http:error] [pid 1132:tid 21248] [client 172.16.5.246:54078] AH01114: HTTP: failed to make connection to backend: 10.1.242.213
+[Mon May 03 01:57:53.284562 2021] [proxy:error] [pid 1132:tid 21240] (OS 10061)No connection could be made because the target machine actively refused it.  : AH00957: HTTP: attempt to connect to 10.1.242.238:7112 (10.1.242.238) failed
+[Mon May 03 01:57:53.284562 2021] [proxy:error] [pid 1132:tid 21240] AH00959: ap_proxy_connect_backend disabling worker for (10.1.242.238) for 60s
+[Mon May 03 01:57:53.284562 2021] [proxy_http:error] [pid 1132:tid 21240] [client 172.16.5.246:19134] AH01114: HTTP: failed to make connection to backend: 10.1.242.238
+[Mon May 03 02:03:58.099002 2021] [proxy:error] [pid 1132:tid 21248] (OS 10061)No connection could be made because the target machine actively refused it.  : AH00957: HTTP: attempt to connect to 10.1.242.250:7111 (10.1.242.250) failed
+[Mon May 03 02:03:58.099002 2021] [proxy:error] [pid 1132:tid 21248] AH00959: ap_proxy_connect_backend disabling worker for (10.1.242.250) for 60s
+[Mon May 03 02:03:58.099002 2021] [proxy_http:error] [pid 1132:tid 21248] [client 172.16.5.246:55453] AH01114: HTTP: failed to make connection to backend: 10.1.242.250
