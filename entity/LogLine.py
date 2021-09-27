@@ -3,7 +3,7 @@
 class LogLine:
     requestDate = ''
     requestTime = ''
-    sourceIp = ''
+    sourceServer = ''
     securityProtocol = ''
     cipherSuite = ''
     requestMethod = ''
@@ -14,12 +14,14 @@ class LogLine:
     responseStatusCode = ''
     responseServer = ''
     channel = ''
-
+    webServer = ''
+    logType = ''
+    createDate = ''
 
     def __init__(self):
         self.requestDate = ''
         self.requestTime = ''
-        self.sourceIp = ''
+        self.sourceServer = ''
         self.securityProtocol = ''
         self.cipherSuite = ''
         self.requestMethod = ''
@@ -30,6 +32,15 @@ class LogLine:
         self.responseStatusCode = ''
         self.responseServer = ''
         self.channel = ''
+        self.webServer = ''
+        self.logType = ''
+        self.createDate = ''
+
+    def getCreateDate(self):
+        return self.createDate
+
+    def setCreateDate(self,createDate):
+        self.createDate = createDate
 
     def getRequestDate(self):
         return self.requestDate
@@ -43,11 +54,11 @@ class LogLine:
     def setRequestTime(self,requestTime):
         self.requestTime = requestTime
     
-    def getSourceIp(self):
-        return self.sourceIp
+    def getSourceServer(self):
+        return self.sourceServer
 
-    def setSourceIp(self,sourceIp):
-        self.sourceIp = sourceIp
+    def setSourceServer(self,sourceServer):
+        self.sourceServer = sourceServer
 
     def getSecurityProtocol(self):
         return self.securityProtocol
@@ -109,7 +120,23 @@ class LogLine:
     def setChannel(self,channel):
         self.channel = channel
 
+    def getWebServer(self):
+        return self.webServer
+
+    def setWebServer(self,webServer):
+        self.webServer = webServer
+
+    def getLogType(self):
+        return self.logType
+
+    def setLogType(self,logType):
+        self.logType = logType
+
     def __str__(self):
-        return self.getLogDate() + ',' + self.getLogTime() + ',' + self.getSourceIp() + ',' + self.getSecurityProtocol() + ',' + self.getCypherSuite() + ',' + self.getRequestMethod() + ',' + self.getRequest() + ',' + self.getHttpVersion() + ',' + self.getRequestSize()  + ',' + self.getRequestHost() + ',' + self.getResponseStatusCode()  + ',' + self.getResponseServer() + ',' + self.getChannel()
+        return self.getCreateDate() + ',' + self.getRequestDate() + ',' + self.getRequestTime() + ',' + self.getRequestMethod()  + ',' + self.getRequest() + ',' + self.getSourceServer() + ',' + self.getWebServer() + ',' + self.getSecurityProtocol() + ',' + self.getCypherSuite()  + ',' + self.getHttpVersion() + ',' + self.getRequestSize()  + ',' + self.getRequestHost() + ',' + self.getResponseStatusCode()  + ',' + self.getResponseServer() + ',' + self.getChannel() + ',' + self.getLogType() 
+        
+
+        
+
 
     

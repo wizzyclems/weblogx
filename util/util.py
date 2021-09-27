@@ -2,6 +2,8 @@
 
 from datetime import datetime
 import subprocess
+import os
+import shutil
 
 
 def getAppProperties(filepath, sep='=', comment_char='#'):
@@ -23,10 +25,30 @@ def getAppProperties(filepath, sep='=', comment_char='#'):
 def formatDate(date):
     return datetime.today().strftime('%Y-%m-%d')
 
+
 def backupFile(oldLocation, newLocation):
     subprocess.call(["mv", oldLocation, newLocation])
     print("file move completed")
 
+
+def backupLogFile(backup_location, file):
+  #subprocess.call(["mv", log_location + "/" + file, backup_location + "/" + file])
+  print("Attempting backup of the processed log file...")
+
+  #check if the backup location exist. If it does not, create it.
+  if not os.path.exists(backup_location):
+    os.makedirs(backup_location)
+  
+  shutil.move(file, backup_location)
+  print("File backup completed")
+
+
+# create chunker function to separate the dataframe into batches
+# Note: last batch will contain smallest amout of records.
+def chunker( dataList, size):
+    return( dataList[pos:pos+size] for pos in range(0,len(dataList),size) )
+
+
 def testMethod():
-    if((J2>60),">1hour",if((J2>30),">30min",if((J2>20),">20mins",if((J2>15),">15mins",if((J2>10),">10mins",if((J2>5),">5mins",if((J2>3),">3mins",if((J2>1),">1min",
-if((J2<1),"1 min","Bad Date")))))))))
+    pass
+    #if((J2>60),">1hour",if((J2>30),">30min",if((J2>20),">20mins",if((J2>15),">15mins",if((J2>10),">10mins",if((J2>5),">5mins",if((J2>3),">3mins",if((J2>1),">1min",if((J2<1),"1 min","Bad Date")))))))))

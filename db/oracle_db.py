@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
 
-
 import cx_Oracle
-import random
 from datetime import datetime
+import traceback
+from util.util import chunker
 
+dbCursor = None
+dbConnection = None
+batchSize = 10000
 
 # Below function establishes connection with the database
-def createOracleDBConnection():
+def createOracleDBConnection(db_name,db_password, db_host):
     # Connect as user "hr" with password "welcome" to the "orclpdb1" service running on this computer.
-    return cx_Oracle.connect("biocapture", "s3@MF1x#SEP!B1OMTn*s3PT17", "10.1.232.232:1521/bsm_p1_stb.mtn.com.ng")
-    
+    print("attempting connection to the database...")
+    dbConnection = cx_Oracle.connect(db_name, db_password, db_host)
+    print("Connection to database successful...")
+    return dbConnection
+
+
+def getDBCursor():
+  global dbCursor
+
+  if dbCursor == None :
+    print("Retrieving database connection cursor...")
+    dbCursor = dbConnection.cursor()
+    print("Database cursor successfully retrieved....")
+  
+  return dbCursor
+  #return createPostgresDBConnection()
+
 
 # Below function retrieves SSL logs from the database.
 def get_SSL_Log(dbCursor, param):
@@ -25,34 +43,47 @@ def get_SSL_Log(dbCursor, param):
 
     except:
         # Rollback in case there is any error
+        traceback.print_exc()
         dbCursor.rollback()
         
-def writeManySSLLogs(connection, logList):
+def writeManySSLLogs2(dbCursor, logList):
     
     sql = """INSERT INTO web_server_ssl_logs(source_ip,destination_ip,destination_port,
         request_date,request_time,request_method,request,request_size)
         VALUES ( :createDate, :reqDate, :reqHour, :reqMethod, :req , :sourceServer)"""
     try:
-        connection.cursor().executemany(sql, logList)
-        connection.commit()
+        dbCursor.executemany(sql, logList)
+        dbCursor.commit()
+        print("Logs successfully written to the database and committed...")
     except:
         # Rollback in case there is any error
         print("Error while writing to the database")
-        connection.rollback()
+        traceback.print_exc()
+        dbCursor.rollback()
 
 
-def writeManySSLLogs2(connection, logList):
-    
-    sql = """INSERT INTO web_server_ssl_logs(create_date, request_date, request_hour,
-        request_method, request, source_server)
-        VALUES ( :createDate, :reqDate, :reqHour, :reqMethod, :req , :sourceServer)"""
+def writeManySSLLogs(dbConnection, logList):
+    global batchSize
+
+    sql = """INSERT INTO web_server_ssl_logs(create_date, request_date, request_time,
+        request_method, request, source_server,SECURITY_PROTOCOL,CIPHERSUITE,
+        HTTP_VERSION,REQUEST_SIZE,REQUEST_HOST,STATUS_CODE,RESPONSE_SERVER,CHANNEL,LOGTYPE, web_server)
+        VALUES ( :createDate, :reqDate, :reqTime, :reqMethod, :req , :sourceServer, :secProtocol, :cipherSuite,
+        :httpVersion, :reqSize, :reqHost, :statusCode, :respServer, :channel, :logType, :webServer)"""
     try:
-        connection.cursor().executemany(sql, logList)
-        connection.commit()
+        dbCursor = dbConnection.cursor()
+        for data in chunker(logList, batchSize) :
+            dbCursor.executemany(sql, data)
+            print(dbCursor.rowcount, "rows inserted")
+            dbConnection.commit()
+
+        print("logs successfully persisted to the database...")
+
     except:
         # Rollback in case there is any error
         print("Error while writing to the database")
-        connection.rollback()
+        traceback.print_exc()
+        dbConnection.rollback()
 
 
 def writeManyErrorLogs(connection, logList):
@@ -82,6 +113,7 @@ def write_SSL_Log(connection, param):
     except:
         # Rollback in case there is any error
         print("Error while writing to the database")
+        traceback.print_exc()
         connection.rollback()
 
 def commitOperation(connection):
@@ -89,3 +121,7 @@ def commitOperation(connection):
 
 def closeDBConnection(connection):
     connection.close()
+
+
+#cx_Oracle.init_oracle_client(lib_dir="/Applications/oracle/instantclient_19_8")
+

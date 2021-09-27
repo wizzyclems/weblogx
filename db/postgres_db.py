@@ -4,14 +4,16 @@ import psycopg2
 
 
 # Below function establishes connection with the database
-def createPostgresDBConnection():
+def createPostgresDBConnection(db_user,db_password,db_host,db_port,db_name):
     # Connect as user "hr" with password "welcome" to the "orclpdb1" service running on this computer.
     print("...trying to connect to postgres db")
-    connection = psycopg2.connect(user = "biocapture",
-                                  password = "W3lcomeB10sm@t2019#",
-                                  host = "10.152.89.180",
-                                  port = "5445",
-                                  database = "biocapture")
+    connection = psycopg2.connect(user = db_user,
+                                  password = db_password,
+                                  host = db_host,
+                                  port = db_port,
+                                  database = db_name)
+    #connection = psycopg2.connect(user = "biocapture", password = "W3lcomeB10sm@t2019#",host = "10.152.89.180", port = "5445", database = "biocapture")
+    
     #cursor = connection.cursor()
     # Print PostgreSQL Connection properties
     print("...database connection successful... details below")
