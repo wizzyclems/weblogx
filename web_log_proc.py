@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from util.util import getAppProperties
 from util.util import backupLogFile
+from util.util import deleteBackedupItems
 from entity.LogLine import LogLine
 
 from db.oracle_db import createOracleDBConnection
@@ -21,10 +22,8 @@ matchedRowCount = 0
 #regex_v1 = r'\[([\d]{1,2}/[\w]{3,3}/[\d]{2,4}):([\d]{1,3}:[\d]{1,3}).*]\s([\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3})\s([\w\d\.\-]*)\s([A-Z\d\-]*)\s\"([A-Z]{0,4})\s?([\w\d/\-\.]*)\s?([\w\d/\-\.]*)\"\s?([\d\-]*)\s?([\w\.]*)\s?([\d\-]*)\s?([\w\d/\-\.:]*)'
 regex = r'\[([\d]{1,2}/[\w]{3,3}/[\d]{2,4}):([\d]{1,3}:[\d]{1,3}).*]\s([\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3})\s([\w\d\.\-]*)\s([A-Z\d\-]*)\s\"([a-zA-Z]{0,})\s?([^ ]*)\s?([\w\d/\-\.]*)\"\s?([\d\-]*)\s?([\w\.]*)\s?([\d\-]*)\s?([\w\d/\-\.:]*)'
 error_log_regex = r'^(\d{4}/\d{1,2}/\d{1,2}) (\d{1,2}:\d{1,2}).*client: ([\d]{1,3}.[\d]{1,3}.[\d]{1,3}.[\d]{1,3}).*request: \"([A-Z]+) ([/\w-]+).*upstream: \"[a-z:/]*([\d]{1,3}.[\d]{1,3}.[\d]{1,3}.[\d]{1,3}):(\d{4})'
-channel = ""
-webServer = "" 
 header_set = False
-logType = ""
+
 fileCache = ""
 unMatchedLine = ""
 
@@ -48,7 +47,7 @@ def getDBConnection():
   return dbConnection
 
 
-def read_SSL_Log(file):
+def read_SSL_Log(file, channel, webServer, logType):
   fileRowCount = 0
   global matchedRowCount
   logList = []
@@ -117,8 +116,29 @@ def read_SSL_Log(file):
   return logList
 
 
+def deleteBackups():
+
+  try:
+
+    if os.path.exists(log_location) and os.path.isdir(log_location):
+      log_files = os.listdir(log_location) 
+    else:
+        print("The specified log location either does not exist or is not a folder. Kindly confirm and run the application again.")
+        return
+
+  except(OSError ):
+    print("Error encountered while trying to read from the log location. Kindly confirm the log location path is correct and try again.")
+    print("Deletion of backed up files will be terminated. Application processing will continue now...")
+    return
+  
+  for server_log in log_files:
+    #delete log backups for each server...
+    deleteBackedupItems( os.path.join(log_location,server_log,"backup") )
+
+  print("Backed up items for all servers have now been cleaned up...")
+
+
 def loadLogs():
-  global channel
 
   try:
 
@@ -157,11 +177,11 @@ def loadLogs():
     print("The log folder path is {}".format(log_folder))
     print("The channel is {}".format(channel))
     print("attempting to process server log now...")
-    processServerLog(channel, webServer, log_folder)
+    processSpecificServerLogs(channel, webServer, log_folder)
 
 
-def processServerLog(channel, webServer,log_folder):
-  global logType
+def processSpecificServerLogs(channel, webServer,log_folder):
+  
 
   try:
     if os.path.exists(log_folder) and os.path.isdir(log_folder):
@@ -175,7 +195,6 @@ def processServerLog(channel, webServer,log_folder):
     print("Terminating the application now...")
     exit()
 
-  #TODO - write into a file the name of the last log file read so as to not read it again. You can also write the names the last 50 logs files read.
   for log in log_files:
     
     if not os.path.isfile(log_folder + '/' + log):
@@ -202,7 +221,7 @@ def processServerLog(channel, webServer,log_folder):
       #reading successful SSL logs
       print("SSL log found {}".format(log))
       logType = "SSL"
-      logList = read_SSL_Log(log_folder + "/" + log)
+      logList = read_SSL_Log(log_folder + "/" + log, channel, webServer, logType)
 
       #below line inserts each log entry into an Oracle database
       writeManySSLLogs( getDBConnection(), logList)
@@ -210,7 +229,7 @@ def processServerLog(channel, webServer,log_folder):
       #put the item in the file cache to mark it has processed
       putInFileCache(log_folder + "/" + log)
       print("File processing done.")
-      #generateReport()
+      #generateReport(logList)
       #print("Row count for file {} is {}".format(log_location + "/" + log, rowCount))
 
     # Read and process ssl-error logs. 
@@ -272,7 +291,7 @@ def markUnmatchLogLine(unMatchedLogLine) :
     file.write(unMatchedLogLine)
 
 
-def generateReport():
+def generateReport(logList):
   global header_set
   
   if not header_set :
@@ -297,11 +316,11 @@ if __name__ == "__main__":
   props = getAppProperties("app.properties", "=")
   #print(props)
 
-  channel = props.get("channel")
+  #channel = props.get("channel")
   log_location = props.get("log_location")
   backup_location = props.get("backup_location")  
   regex = props.get("ssl_log_regex")
-  webServer = props.get("web_server")
+  #webServer = props.get("web_server")
   
 
   fileCache = props.get("file_cache")
@@ -318,7 +337,8 @@ if __name__ == "__main__":
   while True :
     loadLogs()
     print("All logs are now processed. The application will sleep now.")
-    time.sleep(10)
+    time.sleep(2)
+    deleteBackups()
     print("===================================================================")
     print("=================== Fresh Start of processing... ==================")
 

@@ -44,7 +44,7 @@ def backupLogFile(backup_location, file):
 
 
 # create chunker function to separate the dataframe into batches
-# Note: last batch will contain smallest amout of records.
+# Note: last batch will contain smallest amount of records.
 def chunker( dataList, size):
     return( dataList[pos:pos+size] for pos in range(0,len(dataList),size) )
 
@@ -52,3 +52,21 @@ def chunker( dataList, size):
 def testMethod():
     pass
     #if((J2>60),">1hour",if((J2>30),">30min",if((J2>20),">20mins",if((J2>15),">15mins",if((J2>10),">10mins",if((J2>5),">5mins",if((J2>3),">3mins",if((J2>1),">1min",if((J2<1),"1 min","Bad Date")))))))))
+
+#The below function is used for removing all the backed up log files in order to free up storage
+def deleteBackedupItems(backupLocation):
+    print(backupLocation)
+    if os.path.isdir(backupLocation):
+        for filename in os.listdir(backupLocation):
+            file_path = os.path.join(backupLocation, filename)
+            try:
+                if os.path.isfile(file_path):
+                    print("Now deleting the backup location {}".format(file_path))
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))
+                
+        
+        print("Cleanup of backup location completed.")
