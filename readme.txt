@@ -34,9 +34,3 @@ TODO
 - Implement application logging 
 
 
-
-log_location=/data/fix/sw/web_server_logs
-backup_location=/Users/iudoh/wizzyapps/web_server_logs_processor/backup
-
-file_cache=/data/fix/sw/apps/weblogx/cache.txt
-unmatched-logline=/data/fix/sw/apps/weblogx/unmatchedline.txt

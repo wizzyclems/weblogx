@@ -337,7 +337,7 @@ if __name__ == "__main__":
   while True :
     loadLogs()
     print("All logs are now processed. The application will sleep now.")
-    time.sleep(2)
+    time.sleep(20)
     deleteBackups()
     print("===================================================================")
     print("=================== Fresh Start of processing... ==================")
